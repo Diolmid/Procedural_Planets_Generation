@@ -2,21 +2,26 @@ using UnityEngine;
 
 public class Planet : MonoBehaviour
 {
+    public bool autoUpdate = true;
+    [HideInInspector]public bool shapeSettingsFoldout;
+    [HideInInspector]public bool colourSettingsFoldout;
+
+    public ShapeSetting shapeSetting;
+    public ColourSetting colourSetting;
+
     [Range(2, 256)]
     [SerializeField] private int resolution = 10;
-
+    
     [SerializeField, HideInInspector] 
     private TerrainFace[] _terrainFaces;
     private MeshFilter[] _meshFilters;
 
-    private void OnValidate()
-    {
-        Initialize();
-        GenerateMesh();
-    }
+    private ShapeGenerator _shapeGenerator;
 
     private void Initialize()
     {
+        _shapeGenerator = new ShapeGenerator(shapeSetting);
+
         if(_meshFilters == null || _meshFilters.Length == 0)
             _meshFilters = new MeshFilter[6];
 
@@ -36,7 +41,32 @@ public class Planet : MonoBehaviour
                 _meshFilters[i].sharedMesh = new Mesh();
             }    
 
-            _terrainFaces[i] = new TerrainFace(resolution, directions[i], _meshFilters[i].sharedMesh);
+            _terrainFaces[i] = new TerrainFace(resolution, directions[i], _meshFilters[i].sharedMesh, _shapeGenerator);
+        }
+    }
+
+    public void GeneratePlanet()
+    {
+        Initialize();
+        GenerateMesh();
+        GenerateColours();
+    }
+
+    public void OnShapeSettingUpdated()
+    {
+        if (autoUpdate)
+        { 
+            Initialize();
+            GenerateMesh();
+        }
+    }
+
+    public void OnColourSettingUpdated()
+    {
+        if (autoUpdate)
+        {
+            Initialize();
+            GenerateColours();
         }
     }
 
@@ -45,6 +75,14 @@ public class Planet : MonoBehaviour
         foreach (var face in _terrainFaces)
         {
             face.ConstructMesh();
+        }
+    }
+
+    private void GenerateColours()
+    {
+        foreach (var mesh in _meshFilters)
+        {
+            mesh.GetComponent<MeshRenderer>().sharedMaterial.color = colourSetting.planetColor;
         }
     }
 }

@@ -7,12 +7,14 @@ public class TerrainFace
     private Vector3 _axisA;
     private Vector3 _axisB;
     private Mesh _mesh;
+    private ShapeGenerator _shapeGenerator;
 
-    public TerrainFace(int resolution, Vector3 localUp, Mesh mesh)
+    public TerrainFace(int resolution, Vector3 localUp, Mesh mesh, ShapeGenerator shapeGenerator)
     {
         _resolution = resolution;
         _localUp = localUp;
         _mesh = mesh;
+        _shapeGenerator = shapeGenerator;
 
         _axisA = new Vector3(localUp.y, localUp.z, localUp.x);
         _axisB = Vector3.Cross(localUp, _axisA);
@@ -32,7 +34,7 @@ public class TerrainFace
                 var percent = new Vector2(x, y) / (_resolution - 1);
                 var pointOnUnitCube = _localUp + (percent.x - .5f) * 2 * _axisA + (percent.y - .5f) * 2 * _axisB;
                 var pointOnUnitSphere = pointOnUnitCube.normalized;
-                vertices[i] = pointOnUnitSphere;
+                vertices[i] = _shapeGenerator.CalculatePointOnPlanet(pointOnUnitSphere);
 
                 if(x != _resolution - 1 &&  y != _resolution - 1)
                 {
