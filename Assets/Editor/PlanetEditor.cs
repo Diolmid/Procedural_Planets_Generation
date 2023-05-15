@@ -24,8 +24,8 @@ public class PlanetEditor : Editor
             _planet.GeneratePlanet();
         }
 
-        DrawSettingEditor(_planet.shapeSetting, _planet.OnShapeSettingUpdated, ref _planet.shapeSettingsFoldout, ref _shapeEditor);
-        DrawSettingEditor(_planet.colourSetting, _planet.OnColourSettingUpdated, ref _planet.colourSettingsFoldout, ref _clourEditor);
+        DrawSettingEditor(_planet.shapeSettings, _planet.OnShapeSettingUpdated, ref _planet.shapeSettingsFoldout, ref _shapeEditor);
+        DrawSettingEditor(_planet.colourSettings, _planet.OnColourSettingUpdated, ref _planet.colourSettingsFoldout, ref _clourEditor);
     }
 
         private void OnEnable()

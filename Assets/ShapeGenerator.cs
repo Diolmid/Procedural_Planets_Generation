@@ -2,16 +2,19 @@ using UnityEngine;
 
 public class ShapeGenerator : MonoBehaviour
 {
-    private ShapeSetting _setting;
+    public MinMax elevationMinMax;
+
+    private ShapeSetting _settings;
     private INoiseFilter[] _noiseFilters;
 
-    public ShapeGenerator(ShapeSetting setting)
+    public void UpdateSettings(ShapeSetting settings)
     {
-        _setting = setting;
+        _settings = settings;
 
-        _noiseFilters = new INoiseFilter[_setting.noiseLayers.Length];
+        _noiseFilters = new INoiseFilter[_settings.noiseLayers.Length];
         for (int i = 0; i < _noiseFilters.Length; i++)
-            _noiseFilters[i] = NoiseFilterFactory.CreateNoiseFilter(_setting.noiseLayers[i].noiseSettings);
+            _noiseFilters[i] = NoiseFilterFactory.CreateNoiseFilter(_settings.noiseLayers[i].noiseSettings);
+        elevationMinMax = new MinMax();
     }
 
     public Vector3 CalculatePointOnPlanet(Vector3 pointOnUnitSphere)
@@ -22,7 +25,7 @@ public class ShapeGenerator : MonoBehaviour
         if(_noiseFilters.Length > 0)
         {
             firsLayerValue = _noiseFilters[0].Evaluate(pointOnUnitSphere);
-            if (_setting.noiseLayers[0].enabled) 
+            if (_settings.noiseLayers[0].enabled) 
             {
                 elevation = firsLayerValue;
             }
@@ -30,11 +33,12 @@ public class ShapeGenerator : MonoBehaviour
 
         for (int i = 1; i < _noiseFilters.Length; i++)
         {
-            float mask = (_setting.noiseLayers[i].useFirstLayerAsMask) ? firsLayerValue : 1;
-            if (_setting.noiseLayers[i].enabled)
+            float mask = (_settings.noiseLayers[i].useFirstLayerAsMask) ? firsLayerValue : 1;
+            if (_settings.noiseLayers[i].enabled)
                 elevation += _noiseFilters[i].Evaluate(pointOnUnitSphere) * mask;
         }
-
-        return pointOnUnitSphere * _setting.planetRadius * (1 + elevation);
+        elevation = _settings.planetRadius * (1 + elevation);
+        elevationMinMax.AddValue(elevation);
+        return pointOnUnitSphere * elevation;
     }
 }
