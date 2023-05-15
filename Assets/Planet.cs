@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Planet : MonoBehaviour
 {
+    public enum FaceRenderMask { All, Top, Bottom, Left, Right, Front, Back}
+    public FaceRenderMask faceRenderMask;
+
     public bool autoUpdate = true;
     [HideInInspector]public bool shapeSettingsFoldout;
     [HideInInspector]public bool colourSettingsFoldout;
@@ -39,9 +42,11 @@ public class Planet : MonoBehaviour
                 meshObject.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard"));
                 _meshFilters[i] = meshObject.AddComponent<MeshFilter>();
                 _meshFilters[i].sharedMesh = new Mesh();
-            }    
+            }
 
             _terrainFaces[i] = new TerrainFace(resolution, directions[i], _meshFilters[i].sharedMesh, _shapeGenerator);
+            bool renderFace = faceRenderMask == FaceRenderMask.All || (int)faceRenderMask - 1 == i;
+            _meshFilters[i].gameObject.SetActive(renderFace);
         }
     }
 
@@ -72,17 +77,16 @@ public class Planet : MonoBehaviour
 
     private void GenerateMesh()
     {
-        foreach (var face in _terrainFaces)
+        for (int i = 0; i < 6; i++)
         {
-            face.ConstructMesh();
+            if (_meshFilters[i].gameObject.activeSelf)
+                _terrainFaces[i].ConstructMesh();
         }
     }
 
     private void GenerateColours()
     {
         foreach (var mesh in _meshFilters)
-        {
             mesh.GetComponent<MeshRenderer>().sharedMaterial.color = colourSetting.planetColor;
-        }
     }
 }

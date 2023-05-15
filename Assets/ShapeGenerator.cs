@@ -3,15 +3,15 @@ using UnityEngine;
 public class ShapeGenerator : MonoBehaviour
 {
     private ShapeSetting _setting;
-    private NoiseFilter[] _noiseFilters;
+    private INoiseFilter[] _noiseFilters;
 
     public ShapeGenerator(ShapeSetting setting)
     {
         _setting = setting;
 
-        _noiseFilters = new NoiseFilter[_setting.noiseLayers.Length];
+        _noiseFilters = new INoiseFilter[_setting.noiseLayers.Length];
         for (int i = 0; i < _noiseFilters.Length; i++)
-            _noiseFilters[i] = new NoiseFilter(_setting.noiseLayers[i].noiseSettings);
+            _noiseFilters[i] = NoiseFilterFactory.CreateNoiseFilter(_setting.noiseLayers[i].noiseSettings);
     }
 
     public Vector3 CalculatePointOnPlanet(Vector3 pointOnUnitSphere)
